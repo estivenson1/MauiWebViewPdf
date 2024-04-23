@@ -1,24 +1,30 @@
-﻿namespace MauiWebViewPdf
+﻿using System.Net;
+
+namespace MauiWebViewPdf
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
         public MainPage()
         {
             InitializeComponent();
+
+
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private void LoadPdf()
         {
-            count++;
+#if ANDROID
+            Microsoft.Maui.Handlers.WebViewHandler.Mapper.AppendToMapping("pdfviewer", (handler, View) =>
+            {
+                handler.PlatformView.Settings.AllowFileAccess = true;
+                handler.PlatformView.Settings.AllowFileAccessFromFileURLs = true;
+                handler.PlatformView.Settings.AllowUniversalAccessFromFileURLs = true;
+            });
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            pdfview.Source = $"file:///android_asset/pdfjs/web/viewer.html?file=file:///android_asset/{WebUtility.UrlEncode("laboratorio1.pdf")}";
+#else
+            pdfview.Source = "laboratorio1.pdf";
+#endif
         }
     }
 
